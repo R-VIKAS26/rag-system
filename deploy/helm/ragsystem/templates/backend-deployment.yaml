@@ -1,0 +1,45 @@
+{{- $vals := .Values -}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "ragsystem.fullname" . | default "ragsystem-backend" }}
+  labels:
+    app: ragsystem-backend
+spec:
+  replicas: {{ $vals.replicaCount.backend }}
+  selector:
+    matchLabels:
+      app: ragsystem-backend
+  template:
+    metadata:
+      labels:
+        app: ragsystem-backend
+    spec:
+      containers:
+        - name: backend
+          image: "{{ $vals.image.backend.repository }}:{{ $vals.image.backend.tag }}"
+          imagePullPolicy: {{ $vals.image.backend.pullPolicy }}
+          ports:
+            - containerPort: {{ $vals.service.backend.port }}
+          env:
+            - name: DATABASE_URL
+              value: "postgresql://postgres:postgres@ragsystem-postgres:5432/ragdb"
+          resources:
+            limits:
+              cpu: {{ $vals.resources.backend.limits.cpu }}
+              memory: {{ $vals.resources.backend.limits.memory }}
+            requests:
+              cpu: {{ $vals.resources.backend.requests.cpu }}
+              memory: {{ $vals.resources.backend.requests.memory }}
+          readinessProbe:
+            httpGet:
+              path: /api/health/ready
+              port: {{ $vals.service.backend.port }}
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /api/health/live
+              port: {{ $vals.service.backend.port }}
+            initialDelaySeconds: 15
+            periodSeconds: 20

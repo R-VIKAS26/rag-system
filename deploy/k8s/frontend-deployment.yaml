@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ragsystem-frontend
+  labels:
+    app: ragsystem-frontend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: ragsystem-frontend
+  template:
+    metadata:
+      labels:
+        app: ragsystem-frontend
+    spec:
+      containers:
+        - name: frontend
+          image: ragsystem-frontend:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 80
+          env:
+            - name: API_BASE_URL
+              value: "http://ragsystem-backend:8000/api"
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ragsystem-frontend
+spec:
+  selector:
+    app: ragsystem-frontend
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+  type: ClusterIP

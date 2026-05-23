@@ -1,0 +1,21 @@
+FROM node:18-alpine
+
+WORKDIR /app
+
+COPY package*.json ./
+
+# Use npm install to allow building without a package-lock.json present
+RUN npm install --legacy-peer-deps
+
+COPY . .
+
+EXPOSE 4200
+
+# If there is no standard Angular build output, create a small placeholder
+RUN mkdir -p /app/dist && \
+		if [ ! -f /app/dist/index.html ]; then \
+			printf '%s' "<html><head><meta charset=\"utf-8\"><title>RAG System</title></head><body><h1>RAG System (placeholder frontend)</h1><p>Replace frontend folder with real Angular app.</p></body></html>" > /app/dist/index.html; \
+		fi
+
+# Serve the `dist` folder with a lightweight http server (via npx)
+CMD ["sh", "-c", "npx http-server /app/dist -p 4200 --cors"]

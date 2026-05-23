@@ -1,0 +1,57 @@
+replicaCount:
+  backend: 2
+  frontend: 2
+
+image:
+  backend:
+    repository: ragsystem-backend
+    tag: latest
+    pullPolicy: IfNotPresent
+  frontend:
+    repository: ragsystem-frontend
+    tag: latest
+    pullPolicy: IfNotPresent
+
+service:
+  backend:
+    port: 8000
+  frontend:
+    port: 80
+
+resources:
+  backend:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 250m
+      memory: 256Mi
+  frontend:
+    limits:
+      cpu: 200m
+      memory: 256Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+
+postgres:
+  enabled: true
+  persistence:
+    enabled: true
+    accessMode: ReadWriteOnce
+    size: 5Gi
+  resources:
+    requests:
+      memory: 256Mi
+      cpu: 250m
+
+ingress:
+  enabled: false
+  hostname: ragsystem.local
+
+secrets:
+  create: false
+  # If create=true, set openai_key (not recommended to store secrets in values.yaml)
+  openai_key: ""
+
+createPostgresSecret: false
